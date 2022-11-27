@@ -36,7 +36,7 @@ func (req *CreateUser) CreateUser(w http.ResponseWriter) {
 		return
 	}
 
-	query := "INSERT INTO users (firstname, lastname, email, password) VALUES (:firstname, :lastname, :email, :password)"
+	query := "INSERT INTO users (firstname, lastname, email, password) VALUES (?, ?, ?, ?)"
 	stmt, err := db.PrepareContext(ctx, query)
 
 	if err != nil {
@@ -44,7 +44,16 @@ func (req *CreateUser) CreateUser(w http.ResponseWriter) {
 		return
 	}
 
-	stmt.ExecContext(ctx, req.FirstName, req.LastName, req.Email, hasehPassword)
+	row, err := stmt.ExecContext(ctx, req.FirstName, req.LastName, req.Email, hasehPassword)
+
+	if err != nil {
+		fmt.Printf("error inserting %s", err.Error())
+		return
+	}
+
+	id, _ := row.LastInsertId()
+
+	fmt.Printf("number of row affected %d", id)
 
 	createUser := &CreateUser{
 		FirstName: req.FirstName,

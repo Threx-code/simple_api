@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Threx-code/simple_api/utils"
@@ -15,9 +16,12 @@ var (
 	connection *sql.DB
 )
 
-var server, err = utils.LoadConfig("../../")
+var server, err = utils.LoadConfig("../simple_api")
 
 func dns(dbName string) string {
+	if err != nil {
+		log.Fatal(err)
+	}
 	if dbName == "" {
 		return fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", server.DBRoot, server.DBRootPassword, server.DBHost, "")
 	}
@@ -78,7 +82,6 @@ func Connect() {
 		fmt.Printf("unable to create connection %s", err.Error())
 		return
 	}
-	defer db.Close()
 
 	ctx, cancelfunc := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancelfunc()
